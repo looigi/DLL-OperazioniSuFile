@@ -78,7 +78,12 @@ Public Class GestioneFilesDirectory
         If File.Exists(NomeFile) Then
             Dim infoReader As System.IO.FileInfo
             infoReader = My.Computer.FileSystem.GetFileInfo(NomeFile)
-            Dim Dime As Long = infoReader.Length
+            Dim Dime As Long
+            Try
+                Dime = infoReader.Length
+            Catch ex As Exception
+
+            End Try
             infoReader = Nothing
 
             Return Dime
