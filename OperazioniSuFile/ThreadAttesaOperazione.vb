@@ -34,9 +34,9 @@ Public Class ThreadAttesaOperazione
 
         Ancora = True
 
-        ScriveOperazione(instanceThread, True, idProcThread, Log, lblOperazione, lblContatore, lblOperazione.Text, Operazione, ModalitaServizioThread, clLogThread, False)
+		' ScriveOperazione(instanceThread, True, idProcThread, Log, lblOperazione, lblContatore, lblOperazione.Text, Operazione, ModalitaServizioThread, clLogThread, False)
 
-        If zipFile Is Nothing Then
+		If zipFile Is Nothing Then
             trd = New Thread(AddressOf ControlloDimensioni)
             trd.IsBackground = True
             trd.Start()

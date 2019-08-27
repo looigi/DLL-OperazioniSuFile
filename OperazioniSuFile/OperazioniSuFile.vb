@@ -334,8 +334,9 @@ Public Class OperazioniSuFile
         Dim qCartelle As Long = -1
         Dim LeggiCartelle As Boolean = False
         Dim log As StringBuilder = New StringBuilder
+		Dim NomeFileUltimaOperazione As String = Application.StartupPath & "\UltimaOperazione.txt"
 
-        Select Case Operazione
+		Select Case Operazione
             Case TipoOperazione.Copia
                 LeggiCartelle = True
             Case TipoOperazione.Spostamento
@@ -393,15 +394,17 @@ Public Class OperazioniSuFile
                         ' ----------------------------------------------------------------------------------------------
 
                     Case TipoOperazione.SincroniaIntelligente
-                        log = Oper.Sincronizza(idProc, Progressivo, Origine, Destinazione, Filtro, lblOperazione, lblContatore, True, ModalitaServizio, instance, clLog, ModalitaEsecuzioneAutomatica, PercorsoDBTemp)
+						log = Oper.Sincronizza(idProc, Progressivo, Origine, Destinazione, Filtro, lblOperazione, lblContatore, True, ModalitaServizio,
+											   instance, clLog, ModalitaEsecuzioneAutomatica, PercorsoDBTemp, Gf, NomeFileUltimaOperazione)
 
-                        ' ----------------------------------------------------------------------------------------------
+						' ----------------------------------------------------------------------------------------------
 
-                    Case TipoOperazione.Sincronizzazione
-                        log = Oper.Sincronizza(idProc, Progressivo, Origine, Destinazione, Filtro, lblOperazione, lblContatore, False, ModalitaServizio, instance, clLog, ModalitaEsecuzioneAutomatica, PercorsoDBTemp)
+					Case TipoOperazione.Sincronizzazione
+						log = Oper.Sincronizza(idProc, Progressivo, Origine, Destinazione, Filtro, lblOperazione, lblContatore, False, ModalitaServizio,
+											   instance, clLog, ModalitaEsecuzioneAutomatica, PercorsoDBTemp, Gf, NomeFileUltimaOperazione)
 
-                        ' ----------------------------------------------------------------------------------------------
-                    Case TipoOperazione.RiavvioPC
+						' ----------------------------------------------------------------------------------------------
+					Case TipoOperazione.RiavvioPC
                         log = Oper.RiavvioPC(idProc, clLog)
 
                         ' ----------------------------------------------------------------------------------------------
@@ -463,7 +466,9 @@ Public Class OperazioniSuFile
             End If
             Application.DoEvents()
 
-            mud = Nothing
+			ScriviUltimaOperazione(Gf, Operazione, Origine, Destinazione, NomeFileUltimaOperazione)
+
+			mud = Nothing
             Oper = Nothing
             Gf = Nothing
         End If
@@ -471,7 +476,13 @@ Public Class OperazioniSuFile
         Return log
     End Function
 
-    Private lblOperazione As Label
+	Private Sub ScriviUltimaOperazione(Gf As GestioneFilesDirectory, Operazione As Integer, Origine As String, Destinazione As String, NomeFileUltimaOperazione As String)
+		Dim Cosa As String = Operazione & ";" & Origine.Replace(";", "***PV***") & ";" & Destinazione.Replace(";", "***PV***") & ";"
+		Gf.EliminaFileFisico(NomeFileUltimaOperazione)
+		Gf.CreaAggiornaFile(NomeFileUltimaOperazione, cosa)
+	End Sub
+
+	Private lblOperazione As Label
     Private lblContatore As Label
 
     Private Sub AddTextOperazione(ByVal str As String)
