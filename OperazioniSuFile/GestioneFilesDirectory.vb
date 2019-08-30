@@ -416,9 +416,19 @@ Public Class GestioneFilesDirectory
         If SoloRoot = False Then
             LeggeTutto(Instance, Percorso, Filtro, lblAggiornamento)
         End If
-    End Sub
 
-    Public Sub ScansionaDirectorySingolaVeloce(Percorso As String, Instance As Form, Optional Filtro As String = "", Optional lblAgg As Label = Nothing, Optional SoloRoot As Boolean = False)
+		If IsNothing(lblAggiornamento) = False Then
+			Dim mess As String = "Lettura " & TagliaLunghezzaScritta(Percorso, 55) & vbCrLf & "Cartelle: " & FormattaNumero(QuanteDirRilevate, False) & " - Files: " & FormattaNumero(QuantiFilesRilevati, False)
+			If Instance.InvokeRequired Then
+				Instance.Invoke(MethodDelegateAddText, mess)
+			Else
+				Me.lblAggiornamento.Text = mess
+			End If
+		End If
+		Application.DoEvents()
+	End Sub
+
+	Public Sub ScansionaDirectorySingolaVeloce(Percorso As String, Instance As Form, Optional Filtro As String = "", Optional lblAgg As Label = Nothing, Optional SoloRoot As Boolean = False)
         If lblAggiornamento Is Nothing Then
             If Not lblAgg Is Nothing Then
                 lblAggiornamento = lblAgg

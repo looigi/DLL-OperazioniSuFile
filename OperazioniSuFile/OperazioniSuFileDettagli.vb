@@ -483,6 +483,15 @@ Public Class OperazioniSuFileDettagli
 							Application.DoEvents()
 						End If
 					Next
+
+					If IsNothing(lblContatore) = False Then
+						'lblContatore.Text = gf.FormattaNumero(i, False) & "/" & gf.FormattaNumero(qFiletti, False)
+						If instance.InvokeRequired Then
+							instance.Invoke(MethodDelegateAddTextContatore, GF.FormattaNumero(qFiletti, False) & "/" & GF.FormattaNumero(qFiletti, False))
+						Else
+							lblContatore.Text = GF.FormattaNumero(qFiletti, False) & "/" & GF.FormattaNumero(qFiletti, False)
+						End If
+					End If
 				End If
 
 				If MetteInPausa Then
@@ -633,6 +642,15 @@ Public Class OperazioniSuFileDettagli
 										Application.DoEvents()
 									End If
 								Next
+
+								If IsNothing(lblContatore) = False Then
+									'lblContatore.Text = gf.FormattaNumero(i, False) & "/" & gf.FormattaNumero(qFiletti, False)
+									If instance.InvokeRequired Then
+										instance.Invoke(MethodDelegateAddTextContatore, GF.FormattaNumero(qFiletti, False) & "/" & GF.FormattaNumero(qFiletti, False))
+									Else
+										lblContatore.Text = GF.FormattaNumero(qFiletti, False) & "/" & GF.FormattaNumero(qFiletti, False)
+									End If
+								End If
 							End If
 							'Else
 							'	qCartelleDest = 1
@@ -1017,6 +1035,7 @@ Public Class OperazioniSuFileDettagli
 									Catch ex As Exception
 										ScriveOperazione(instance, True, idProc, log, lblOperazione, lblContatore, "Problema su eliminazione directory: " & ex.Message, " ", ModalitaServizio, clLog)
 									End Try
+									i += 1
 								Next
 
 								i = 0
@@ -1028,6 +1047,7 @@ Public Class OperazioniSuFileDettagli
 									Catch ex As Exception
 										ScriveOperazione(instance, True, idProc, log, lblOperazione, lblContatore, "Problema su eliminazione directory: " & ex.Message, " ", ModalitaServizio, clLog)
 									End Try
+									i += 1
 								Next
 
 								If MetteInPausa Then
