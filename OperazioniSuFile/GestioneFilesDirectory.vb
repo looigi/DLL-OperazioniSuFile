@@ -75,20 +75,22 @@ Public Class GestioneFilesDirectory
     End Sub
 
     Public Function TornaDimensioneFile(NomeFile As String) As Long
-        If File.Exists(NomeFile) Then
-            Dim infoReader As System.IO.FileInfo
-            infoReader = My.Computer.FileSystem.GetFileInfo(NomeFile)
-            Dim Dime As Long
-            Try
-                Dime = infoReader.Length
-            Catch ex As Exception
+		If File.Exists(NomeFile) Then
+			Try
+				Dim infoReader As System.IO.FileInfo
+				infoReader = My.Computer.FileSystem.GetFileInfo(NomeFile)
+				Dim Dime As Long
 
-            End Try
-            infoReader = Nothing
+				Dime = infoReader.Length
 
-            Return Dime
-        Else
-            Return -1
+				infoReader = Nothing
+
+				Return Dime
+			Catch ex As Exception
+				Return -1
+			End Try
+		Else
+			Return -1
         End If
     End Function
 
@@ -170,7 +172,7 @@ Public Class GestioneFilesDirectory
     Private Sub hdnlCopia(ByVal sender As Object, ByVal e As ElapsedEventArgs)
         If IsNothing(lblAggiornamento) = False Then
 			Secondi += 1
-			If Secondi < 100 Then
+			If Secondi <= 500 Then
 				Dim dime As Long = TornaDimensioneFile(NomDestCompleto)
 				Dim mess As String = "Copia file " & QuantiFiles & ": " & TagliaLunghezzaScritta(NomOrig, 45) & vbCrLf &
 				"Dimensioni: " & FormattaNumero(dime, False) & " - Secondi: " & Secondi
@@ -259,13 +261,15 @@ Public Class GestioneFilesDirectory
 			End If
 
 			If Not lblC Is Nothing Then
-				tmr.Stop()
-				tmr.Enabled = False
+				If Not tmr Is Nothing Then
+					tmr.Stop()
+					tmr.Enabled = False
+				End If
 			End If
 
 			Return Ritorno
 		Else
-			If Not lblC Is Nothing Then
+			If Not tmr Is Nothing Then
 				tmr.Stop()
 				tmr.Enabled = False
 			End If
