@@ -75,20 +75,22 @@ Public Class GestioneFilesDirectory
     End Sub
 
     Public Function TornaDimensioneFile(NomeFile As String) As Long
-        If File.Exists(NomeFile) Then
-            Dim infoReader As System.IO.FileInfo
-            infoReader = My.Computer.FileSystem.GetFileInfo(NomeFile)
-            Dim Dime As Long
-            Try
-                Dime = infoReader.Length
-            Catch ex As Exception
+		If File.Exists(NomeFile) Then
+			Try
+				Dim infoReader As System.IO.FileInfo
+				infoReader = My.Computer.FileSystem.GetFileInfo(NomeFile)
+				Dim Dime As Long
 
-            End Try
-            infoReader = Nothing
+				Dime = infoReader.Length
 
-            Return Dime
-        Else
-            Return -1
+				infoReader = Nothing
+
+				Return Dime
+			Catch ex As Exception
+				Return -1
+			End Try
+		Else
+			Return -1
         End If
     End Function
 
@@ -169,89 +171,94 @@ Public Class GestioneFilesDirectory
 
     Private Sub hdnlCopia(ByVal sender As Object, ByVal e As ElapsedEventArgs)
         If IsNothing(lblAggiornamento) = False Then
-            Secondi += 1
-            Dim dime As Long = TornaDimensioneFile(NomDestCompleto)
-            Dim mess As String = "Copia file " & QuantiFiles & ": " & TagliaLunghezzaScritta(NomOrig, 45) & vbCrLf &
-                "Dimensioni: " & FormattaNumero(dime, False) & " - Secondi: " & Secondi
-            If instance.InvokeRequired Then
-                instance.Invoke(MethodDelegateAddText, mess)
-            Else
-                Me.lblAggiornamento.Text = mess
-            End If
-        End If
-    End Sub
+			Secondi += 1
+			If Secondi <= 500 Then
+				Dim dime As Long = TornaDimensioneFile(NomDestCompleto)
+				Dim mess As String = "Copia file " & QuantiFiles & ": " & TagliaLunghezzaScritta(NomOrig, 45) & vbCrLf &
+				"Dimensioni: " & FormattaNumero(dime, False) & " - Secondi: " & Secondi
+				If instance.InvokeRequired Then
+					instance.Invoke(MethodDelegateAddText, mess)
+				Else
+					Me.lblAggiornamento.Text = mess
+				End If
+			Else
+				tmr.Stop()
+				tmr.Enabled = False
+			End If
+		End If
+	End Sub
 
-    Public Function CopiaFileFisico(NomeFileOrigine As String, NomeFileDestinazione As String, SovraScrittura As Boolean, Optional I As Form = Nothing, Optional lblC As Label = Nothing, Optional S As String = "") As String
-        Dim Ritorno As String = ""
+	Public Function CopiaFileFisico(NomeFileOrigine As String, NomeFileDestinazione As String, SovraScrittura As Boolean, Optional I As Form = Nothing, Optional lblC As Label = Nothing, Optional S As String = "") As String
+		Dim Ritorno As String = ""
 
-        NomDest = TornaNomeFileDaPath(NomeFileDestinazione)
-        NomDestCompleto = NomeFileDestinazione
-        NomOrig = TornaNomeFileDaPath(NomeFileOrigine)
+		NomDest = TornaNomeFileDaPath(NomeFileDestinazione)
+		NomDestCompleto = NomeFileDestinazione
+		NomOrig = TornaNomeFileDaPath(NomeFileOrigine)
 
-        If File.Exists(NomeFileOrigine) Then
-            If NomeFileOrigine.Trim <> "" And NomeFileDestinazione.Trim <> "" And NomeFileOrigine.Trim.ToUpper <> NomeFileDestinazione.Trim.ToUpper Then
-                Dim Ok As Boolean = True
+		If File.Exists(NomeFileOrigine) Then
+			If NomeFileOrigine.Trim <> "" And NomeFileDestinazione.Trim <> "" And NomeFileOrigine.Trim.ToUpper <> NomeFileDestinazione.Trim.ToUpper Then
+				Dim Ok As Boolean = True
 
-                Dim fOrigine As New FileAttribute
+				Dim fOrigine As New FileAttribute
 
-                fOrigine = PrendeAttributiFile(NomeFileOrigine)
-                If (fOrigine And System.IO.FileAttributes.System) = System.IO.FileAttributes.System Or
-                        (fOrigine And System.IO.FileAttributes.Hidden) = System.IO.FileAttributes.Hidden Then
-                    ImpostaAttributiFile(NomeFileOrigine, FileAttribute.Normal)
-                End If
+				fOrigine = PrendeAttributiFile(NomeFileOrigine)
+				If (fOrigine And System.IO.FileAttributes.System) = System.IO.FileAttributes.System Or
+						(fOrigine And System.IO.FileAttributes.Hidden) = System.IO.FileAttributes.Hidden Then
+					ImpostaAttributiFile(NomeFileOrigine, FileAttribute.Normal)
+				End If
 
-                If File.Exists(NomeFileDestinazione) Then
-                    If SovraScrittura = False Then
-                        NomeFileDestinazione = NomeFileEsistente(NomeFileDestinazione)
-                    Else
-                        Dim flO As Integer = FileLen(NomeFileOrigine)
-                        Dim flD As Integer = FileLen(NomeFileDestinazione)
-                        Dim duaO As Date = FileDateTime(NomeFileOrigine)
-                        Dim duaD As Date = FileDateTime(NomeFileDestinazione)
+				If File.Exists(NomeFileDestinazione) Then
+					If SovraScrittura = False Then
+						NomeFileDestinazione = NomeFileEsistente(NomeFileDestinazione)
+					Else
+						Dim flO As Integer = FileLen(NomeFileOrigine)
+						Dim flD As Integer = FileLen(NomeFileDestinazione)
+						Dim duaO As Date = FileDateTime(NomeFileOrigine)
+						Dim duaD As Date = FileDateTime(NomeFileDestinazione)
 
-                        Dim diff As Integer = Math.Abs(DateDiff(DateInterval.Second, duaO, duaD))
-                        If flO = flD And diff < 60 Then
-                            Ritorno = "SKIPPED"
-                            Ok = False
-                        Else
-                            EliminaFileFisico(NomeFileDestinazione)
-                        End If
-                    End If
-                End If
+						Dim diff As Integer = Math.Abs(DateDiff(DateInterval.Second, duaO, duaD))
+						If flO = flD And diff < 60 Then
+							Ritorno = "SKIPPED"
+							Ok = False
+						Else
+							EliminaFileFisico(NomeFileDestinazione)
+						End If
+					End If
+				End If
 
-                If Ok Then
-                    If Not lblC Is Nothing Then
-                        lblAggiornamento = lblC
-                        instance = I
+				If Ok Then
+					If Not lblC Is Nothing Then
+						lblAggiornamento = lblC
+						instance = I
 
-                        Secondi = 0
-                        tmr = New System.Timers.Timer(1000)
-                        AddHandler tmr.Elapsed, New ElapsedEventHandler(AddressOf hdnlCopia)
-                        tmr.Enabled = True
-                        QuantiFiles = S
-                    End If
+						Secondi = 0
+						tmr = New System.Timers.Timer(1000)
+						AddHandler tmr.Elapsed, New ElapsedEventHandler(AddressOf hdnlCopia)
+						tmr.Enabled = True
+						QuantiFiles = S
+					End If
 
-                    Dim dataUltimoAccesso As Date = TornaDataUltimoAccesso(NomeFileOrigine)
-                    ' Dim attr As FileAttribute = PrendeAttributiFile(NomeFileOrigine)
-                    ' ImpostaAttributiFile(NomeFileOrigine, FileAttribute.Normal)
+					Dim dataUltimoAccesso As Date = TornaDataUltimoAccesso(NomeFileOrigine)
+					' Dim attr As FileAttribute = PrendeAttributiFile(NomeFileOrigine)
+					' ImpostaAttributiFile(NomeFileOrigine, FileAttribute.Normal)
 
-                    Try
-                        File.Copy(NomeFileOrigine, NomeFileDestinazione, True)
+					Try
+						File.Copy(NomeFileOrigine, NomeFileDestinazione, True)
 
-                        ImpostaAttributiFile(NomeFileDestinazione, fOrigine)
-                        Ritorno = TornaNomeFileDaPath(NomeFileDestinazione)
-                    Catch ex As Exception
-                        Ritorno = "ERRORE: " & ex.Message
-                    End Try
+						ImpostaAttributiFile(NomeFileDestinazione, fOrigine)
+						Ritorno = TornaNomeFileDaPath(NomeFileDestinazione)
+					Catch ex As Exception
+						Ritorno = "ERRORE: " & ex.Message
+					End Try
 
-                    ImpostaAttributiFile(NomeFileOrigine, fOrigine)
-                    Try
-                        File.SetLastAccessTime(NomeFileOrigine, dataUltimoAccesso)
-                    Catch ex As Exception
+					ImpostaAttributiFile(NomeFileOrigine, fOrigine)
+					Try
+						File.SetLastAccessTime(NomeFileOrigine, dataUltimoAccesso)
+					Catch ex As Exception
 
-                    End Try
-                End If
-            End If
+					End Try
+				End If
+			End If
 
 			If Not lblC Is Nothing Then
 				If Not tmr Is Nothing Then
@@ -262,15 +269,13 @@ Public Class GestioneFilesDirectory
 
 			Return Ritorno
 		Else
-            If Not lblC Is Nothing Then
-				If Not tmr Is Nothing Then
-					tmr.Stop()
-					tmr.Enabled = False
-				End If
+			If Not tmr Is Nothing Then
+				tmr.Stop()
+				tmr.Enabled = False
 			End If
 
 			Return "ERRORE: File di origine non presente"
-        End If
+		End If
     End Function
 
     Public Function TornaNomeFileDaPath(Percorso As String) As String
