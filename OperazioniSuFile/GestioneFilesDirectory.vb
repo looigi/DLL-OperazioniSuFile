@@ -253,19 +253,23 @@ Public Class GestioneFilesDirectory
                 End If
             End If
 
-            If Not lblC Is Nothing Then
-                tmr.Stop()
-                tmr.Enabled = False
-            End If
+			If Not lblC Is Nothing Then
+				If Not tmr Is Nothing Then
+					tmr.Stop()
+					tmr.Enabled = False
+				End If
+			End If
 
-            Return Ritorno
-        Else
+			Return Ritorno
+		Else
             If Not lblC Is Nothing Then
-                tmr.Stop()
-                tmr.Enabled = False
-            End If
+				If Not tmr Is Nothing Then
+					tmr.Stop()
+					tmr.Enabled = False
+				End If
+			End If
 
-            Return "ERRORE: File di origine non presente"
+			Return "ERRORE: File di origine non presente"
         End If
     End Function
 
