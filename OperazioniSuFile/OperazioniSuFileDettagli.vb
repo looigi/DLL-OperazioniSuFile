@@ -883,7 +883,7 @@ Public Class OperazioniSuFileDettagli
 										Dim t As New ThreadAttesaOperazione
 										GF.CreaDirectoryDaPercorso(GF.TornaNomeDirectoryDaPath(FileDestinazione) & "\")
 
-										t.EsegueControllo(instance, idProc, ModalitaServizio, clLog, FileDestinazione, log, lblOperazione, lblContatore, "Controllo file " & GF.TornaNomeFileDaPath(FileOrigine))
+										t.EsegueControllo(instance, idProc, ModalitaServizio, clLog, FileDestinazione, log, lblOperazione, lblContatore, "Controllo file " & GF.FormattaNumero(i, False) & "/" & GF.FormattaNumero(FilesDaElaborare.Count, False) & ": " & GF.TornaNomeFileDaPath(FileOrigine))
 
 										Dim s As String = GF.FormattaNumero(i, False) & "/" & GF.FormattaNumero(FilesDaElaborare.Count, False)
 										' ScriveOperazione(instance, True, idProc, log, lblOperazione, lblContatore, "Copia file " & GF.TornaNomeFileDaPath(FileOrigine), " ", ModalitaServizio, clLog)

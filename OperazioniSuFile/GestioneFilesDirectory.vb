@@ -182,8 +182,10 @@ Public Class GestioneFilesDirectory
 					Me.lblAggiornamento.Text = mess
 				End If
 			Else
-				tmr.Stop()
-				tmr.Enabled = False
+				If Not tmr Is Nothing Then
+					tmr.Stop()
+					tmr.Enabled = False
+				End If
 			End If
 		End If
 	End Sub
